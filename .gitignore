@@ -1,0 +1,25 @@
+
+# OS 관련 파일 무시
+.DS_Store  # macOS에서 생성되는 파일
+Thumbs.db  # Windows에서 생성되는 파일
+
+# 로그 파일 및 빌드 아티팩트 무시
+*.log
+*.tmp
+images/  # 폴더 무시
+text/    # 폴더 무시
+text_manual/  # 폴더 무시
+.ipynb_checkpoints/ 
+__pycache__
+
+# IDE나 편집기 관련 파일 무시
+.vscode/  # VS Code 설정 폴더
+.idea/  # IntelliJ IDEA 설정 폴더
+
+# makefile 
+~$*.pptx
+
+# 특정 파일 패턴 무시
+test*.ipynb  # test로 시작하는 모든 ipynb 파일
+*.pptx  # PowerPoint 파일
+*.xlsx  # Excel 파일
