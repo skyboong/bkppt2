@@ -1,3 +1,5 @@
+print(">>> 0.0.1")
+
 import re 
 from datetime import datetime
 
@@ -765,7 +767,7 @@ def text_frame_add_paragraph_with_level(text_frame, each_text: str = '', font_na
                 p.bullet = None
                 p.space_before = Pt(space_before)  
                 p.space_after = Pt(space_after)
-                print(f"p.level={p.level}")
+                #print(f"p.level={p.level}")
             case 1 : 
                 p.space_before = Pt(space_before1)  
                 p.space_after = Pt(space_after1)

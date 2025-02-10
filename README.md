@@ -8,7 +8,7 @@ This program is a simple tool that converts text files, image files, etc., into 
 
 # Install
 
-pip install git+https://github.com/skyboong/bkexcel.git
+pip install git+https://github.com/skyboong/bkppt2.git
 
 # Tutorial
 
