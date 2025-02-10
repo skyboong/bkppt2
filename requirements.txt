@@ -1,0 +1,8 @@
+jupyter
+pandas
+matplotlib
+plotly
+pyside6
+python-pptx
+nbformat
+icecream
