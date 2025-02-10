@@ -12,7 +12,7 @@ pip install git+https://github.com/skyboong/bkppt2.git
 
 # Tutorial
 
-'''
+```
 from pathlib import Path
 import os 
 
@@ -59,5 +59,5 @@ bp.create_pppt(prefix=file_pre_fix,
                 auto_figure_yp=6,
                 auto_figure_delta=1.2,
                 auto_figure_height=1)
-'''
+```
 
