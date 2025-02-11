@@ -1,3 +1,7 @@
+"""
+bkppt2 
+2025.2.10
+"""
 print(">>> 0.0.1")
 
 import re 
@@ -91,7 +95,7 @@ COLORS_NAME  = {
     "azure": "#F0FFFF",
     "mintcream": "#F5FFFA"
 }
-
+print(">>> create_ppt()")
 # 기본 설정 상수
 DEFAULT_TEXTBOX_WIDTH = 12.33
 DEFAULT_TEXTBOX_HEIGHT = 6.0
@@ -263,37 +267,47 @@ def create_pppt(prefix:str='ppt_',
                 continue 
 
             # 2 그림 지정 
+            ic.disable()
             if re.search(r"<fig:", each_text):
                 match = extract_figure_info(each_text)
                 if match :
                     #print("*******************figure find")
                     file_fig = match[0]
                     fig_caption = match[4]
-                    
-                    if (auto_figure_position == True) and (auto_figure_vertical == True):
-                        ic.enable()
-                        #print("*auto positioning")
-                        fig_pos_xpa=auto_figure_xp
-                        fig_pos_ypa += auto_figure_delta
-
-                        xp = fig_pos_xpa
-                        yp = fig_pos_ypa
-                        h = auto_figure_height 
-                    elif (auto_figure_position == True) and (auto_figure_vertical == False):
-                        ic.enable()
-                        #print("*auto positioning")
-                        fig_pos_xpa += auto_figure_delta
-                        fig_pos_ypa  = auto_figure_yp 
-
-                        xp = fig_pos_xpa
-                        yp = fig_pos_ypa
-                        h = auto_figure_height     
-                    else:
-                        
+                    manual = match[5]
+                    #ic(f"manual={manual}, each_text={each_text}")
+                    if manual.strip() == 'M': # 2025/2/11 
                         xp = match[1]
                         yp = match[2]
                         h = match[3]
-                    #print(f"*** {xp}, {yp}, {h}")     
+                        ic(f"*** {each_text} : {file_fig} {xp},{yp},{h}, {fig_caption}, {manual}")
+                    else:
+                        # 자동 위치 지정 + 수직 
+                        if (auto_figure_position == True) and (auto_figure_vertical == True):
+                            
+                            #print("*auto positioning")
+                            fig_pos_xpa=auto_figure_xp
+                            fig_pos_ypa += auto_figure_delta
+
+                            xp = fig_pos_xpa
+                            yp = fig_pos_ypa
+                            h = auto_figure_height 
+                        # 자동 위치 지정 + 수평
+                        elif (auto_figure_position == True) and (auto_figure_vertical == False):
+                            
+                            #print("*auto positioning")
+                            fig_pos_xpa += auto_figure_delta
+                            fig_pos_ypa  = auto_figure_yp 
+
+                            xp = fig_pos_xpa
+                            yp = fig_pos_ypa
+                            h = auto_figure_height     
+                        else:
+                            xp = match[1]
+                            yp = match[2]
+                            h = match[3]
+                    
+                    #ic(f"*** {xp}, {yp}, {h}")     
 
                     
 
@@ -920,7 +934,39 @@ def parse_figure_attributes_h(text, x=6.5,y=1, height=3, caption=''):
         case _ :
             return None 
 
+import re
+
 def extract_figure_info(text: str):
+    """
+    주어진 문자열에서 <fig:> 패턴을 사용하여 파일명, 좌표1, 좌표2, 높이, 캡션을 추출하는 함수
+
+    예제 입력:
+    "<fig: time_schumpeterian.jpg, 4.0, 3.0, 2.8, Schumpeterian, ☞ 신슘페테리언(Neo-Schumpeterian) 이라고도 함>"
+
+    반환:
+    ('time_schumpeterian.jpg', 4.0, 3.0, 2.8, 'Schumpeterian, ☞ 신슘페테리언(Neo-Schumpeterian) 이라고도 함')
+    """
+    text = text.strip()
+
+    pattern = re.compile(r"<fig:\s*([\w\d\-_\.]+)\s*,\s*([\d\.]+)\s*,\s*([\d\.]+)\s*,\s*([\d\.]+)\s*(?:,\s*(.*))?\s*>(?:(M))?")
+
+    match = pattern.search(text)
+    if match:
+        filename = match.group(1)
+        x_coord = float(match.group(2))
+        y_coord = float(match.group(3))
+        height = float(match.group(4))
+        caption = match.group(5) if match.group(5) else ""  # 캡션이 없으면 빈 문자열 반환
+        manual = match.group(6) if match.group(6) else "A"
+        # if manual == 'M':
+        #     print(f"text={text}")
+        #     print(filename,x_coord,y_coord,height,caption,manual)
+        return filename, x_coord, y_coord, height, caption,manual
+
+    return None
+
+
+def extract_figure_info_old1(text: str):
     """
     주어진 문자열에서 <fig:> 패턴을 사용하여 파일명, 좌표1, 좌표2, 높이, 캡션을 추출하는 함수
 
@@ -953,8 +999,51 @@ def extract_figure_info(text: str):
 
     return None
 
+import re
 
 def extract_section_info(text: str, color="#ff0000", width=0.5):
+    """ 
+    <section:> 태그에서 section 정보 (표시 여부, 색상, 선 두께) 추출
+    
+    예제 입력:
+    "<section:true, #ff0000, 0.8>"
+    
+    반환:
+    (True, '#ff0000', 0.8)
+    """
+    text = text.strip()
+
+    # 개선된 정규식 (단일 패턴)
+    pattern = re.compile(
+        r"<section:\s*([\w]+)\s*,?\s*(?:color=)?([\'\"]?(#[0-9a-fA-F]{6}|[a-zA-Z_]+)[\'\"]?)?\s*,?\s*(?:width=)?([\d.]*)?>",
+        flags=re.IGNORECASE
+    )
+
+    match = pattern.search(text)
+    if match:
+        show = match.group(1)  # 표시 여부 (True/False)
+        color = match.group(2) or color  # 색상 (없으면 기본값 사용)
+        width = match.group(3)  # 선 두께 (없으면 기본값 사용)
+
+        # show 값 변환
+        show = show.lower() == "true"
+
+        # color 변환 (COLORS_NAME이 존재하는 경우 사용)
+        if 'COLORS_NAME' in globals():
+            color = COLORS_NAME.get(color, "#eeeeee")
+
+        # width 변환
+        try:
+            width = float(width) if width else 0.5
+        except ValueError:
+            width = 0.5
+
+        return show, color, width
+
+    return False, color, width  # 매칭되지 않을 경우 기본값 반환
+
+
+def extract_section_info_old(text: str, color="#ff0000", width=0.5):
     """ section 정보 추출하는 함수 : color, width"""
     text = text.strip() 
     
